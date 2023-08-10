@@ -99,7 +99,7 @@
     appId: "1:248131262068:web:bdc709da82c604c3eae321",
     measurementId: "G-T8FRSQHLKP"
   };
-        const currentURL = document.referrer;;
+        const currentURL = window.location.href;
         document.getElementById('videoLinkInput').value = currentURL;
       
         firebase.initializeApp(firebaseConfig);
