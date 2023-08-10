@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Kullanma İzni Talebi - Buray</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Video Kullanma İzni Talebi | Buray Aşk mı lazım</h2>
+        <form id="videoPermissionForm">
+            <div class="form-group">
+                <label for="fullName">İsim / Soyisim</label>
+                <input type="text" class="form-control" id="fullName" required>
+            </div>
+            <div class="form-group">
+                <label><b>Kullanılacak Video:</label><input type="text" class="form-control" id="videoLinkInput" disabled>
+            </div>
+            <div class="form-group">
+                <label for="platform">Videonun Yükleneceği Platform</label>
+                <select class="form-control" id="platform" required>
+                    <option value="" disabled selected>Lütfen seçiniz</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="YouTube">YouTube</option>
+                  <option value="Tiktok">Tiktok</option>
+                  <option value="Twitter">Twitter</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="Diğer">Diğer -> Lütfen ne amaçla kullanacaksınız soru başlığında belirtin.</option>
+                </select>
+            </div>
+          <div class="form-group">
+                <label for="contentDuration">Hesabıızın linkini yazabilir misiniz? (link/kullanıcı adı)</label>
+                <input type="text" class="form-control" id="contentProfile" required>
+            </div>
+            <div class="form-group">
+                <label for="purpose">Bu Videoyu Ne Amaçla Kullanacaksınız?</label>
+                <textarea class="form-control" id="purpose" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="contentDuration">Ne Kadar Süredir İçerik Üretiyorsunuz?</label>
+                <input type="text" class="form-control" id="contentDuration" required>
+            </div>
+            <div class="form-group">
+                <label for="email">E-mail Adresiniz</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Telefon Numaranız (İletişim Bilgisi) *zorunlu değildir*</label>
+                <input type="tel" class="form-control" id="phone">
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="terms" required>
+                <label class="form-check-label" for="terms">Video kullanım şartlarını anladım, kabul ediyorum.</label>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Başvur</button>
+        </form>
+    </div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Talep Durumu Bilgilendirmesi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Firebase JS SDK -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-database.js"></script>
+    <script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyCscDMcFQ47aiDZ_UXIfoQfkc083lgAt7w",
+    authDomain: "lifeai-minersaver.firebaseapp.com",
+    databaseURL: "https://lifeai-minersaver-default-rtdb.firebaseio.com",
+    projectId: "lifeai-minersaver",
+    storageBucket: "lifeai-minersaver.appspot.com",
+    messagingSenderId: "248131262068",
+    appId: "1:248131262068:web:bdc709da82c604c3eae321",
+    measurementId: "G-T8FRSQHLKP"
+  };
+        const currentURL = window.location.href;
+        document.getElementById('videoLinkInput').value = currentURL;
+      
+        firebase.initializeApp(firebaseConfig);
+
+        document.getElementById('videoPermissionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const video = document.getElementById('videoLinkInput').value;
+            const fullName = document.getElementById('fullName').value;
+            const platform = document.getElementById('platform').value;
+            const purpose = document.getElementById('purpose').value;
+            const contentProfile = document.getElementById('contentProfile').value;
+            const contentDuration = document.getElementById('contentDuration').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const termsChecked = document.getElementById('terms').checked;
+
+            const dbRef = firebase.database().ref('videoPermissions');
+            dbRef.push({
+                fullName: fullName,
+                video: video,
+                platform: platform,
+                contentProfile: contentProfile,
+                purpose: purpose,
+                contentDuration: contentDuration,
+                email: email,
+                phone: phone,
+                termsChecked: termsChecked
+            });
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = 'Talebiniz alınmıştır. En kısa sürede size dönüş yapacağız. <br>Dönüş yapılana kadar lütfen videoyu kullanmayın, aksi halde telif hakları ile ilgili işlemlerin başlatılma hakkı saklıdır. <br>Sağlıklı günler dileriz.';
+            $('#myModal').modal('show');
+
+            document.getElementById('videoPermissionForm').reset();
+        });
+    </script>
+</body>
+</html>
