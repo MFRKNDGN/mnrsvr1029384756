@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Röntgen Sonuç Sayfası</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <style>
+    body {
+      padding-top: 60px; /* Navbar yüksekliği */
+      background-color: #f8f9fa;
+    }
+    #xrayContainer {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    #xrayImage {
+      max-width: 100%;
+    }
+    #controlsContainer {
+      max-width: 100%;
+      margin-top: 20px;
+    }
+    #contrastSlider, #brightnessSlider, #zoomSlider {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">Röntgen Sonuç Sayfası</a>
+    <div class="ml-auto">
+      <span class="navbar-text mr-3" id="doctorName">Doktor Adı</span>
+      <img src="" alt="Doktor Resmi" id="doctorImage" width="40" height="40" class="rounded-circle">
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="row">
+      <!-- Sol Tarafta Doktor Adı ve Hasta Arama Formu -->
+      <div class="col-md-4">
+        <h4 id="greetingMessage"></h4>
+
+        <!-- Hasta Arama Formu -->
+        <form id="searchForm" onsubmit="return searchPatient()">
+          <div class="input-group mt-3">
+            <input type="text" class="form-control" id="patientName" placeholder="Hasta Adı ve Soyadı veya TC Kimlik No" required>
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="submit">Ara</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Sağ Tarafta Röntgen Sonucu Gösterimi ve Özelleştirme Penceresi -->
+      <div class="col-md-8">
+        <div id="xrayContainer">
+          <img src="https://www.fulyaacikemar.com/wp-content/uploads/2021/02/C8OWVqYUMAAj0nR.jpg" alt="Röntgen Sonucu" id="xrayImage">
+        </div>
+        <div id="controlsContainer">
+          <label for="contrastSlider">Kontrast Ayarı:</label>
+          <input type="range" class="form-control-range" id="contrastSlider" min="0" max="100" step="1" value="50">
+          
+          <label for="brightnessSlider">Parlaklık Ayarı:</label>
+          <input type="range" class="form-control-range" id="brightnessSlider" min="0" max="100" step="1" value="50">
+          
+          <label for="zoomSlider">Büyütme Ayarı:</label>
+          <input type="range" class="form-control-range" id="zoomSlider" min="50" max="200" step="1" value="100">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-database.js"></script>
+  <script>
+    // Firebase yapılandırması
+  var firebaseConfig = {
+    apiKey: "AIzaSyCscDMcFQ47aiDZ_UXIfoQfkc083lgAt7w",
+    authDomain: "lifeai-minersaver.firebaseapp.com",
+    databaseURL: "https://lifeai-minersaver-default-rtdb.firebaseio.com",
+    projectId: "lifeai-minersaver",
+    storageBucket: "lifeai-minersaver.appspot.com",
+    messagingSenderId: "248131262068",
+    appId: "1:248131262068:web:bdc709da82c604c3eae321",
+    measurementId: "G-T8FRSQHLKP"
+  };
+
+    // Firebase uygulamasını başlatma
+    firebase.initializeApp(firebaseConfig);
+
+    // Doktor adı ve resmini çekme
+    function fetchDoctorData() {
+      var doctorRef = firebase.database().ref("doctors/DOCTOR_ID"); // "DOCTOR_ID" kısmını doktorunuzun ID'siyle değiştirin
+
+      doctorRef.once("value")
+        .then(function(snapshot) {
+          var doctorData = snapshot.val();
+          if (doctorData) {
+            // Doktor adı ve resmini güncelleme
+            document.getElementById("doctorName").textContent = doctorData.name;
+            document.getElementById("doctorImage").setAttribute("src", doctorData.imageUrl);
+          }
+        })
+        .catch(function(error) {
+          console.error("Doktor verileri çekme hatası:", error);
+        });
+    }
+
+    // Röntgen sonucunu özelleştirme fonksiyonu
+    function customizeXray() {
+      var contrastValue = document.getElementById("contrastSlider").value;
+      var brightnessValue = document.getElementById("brightnessSlider").value;
+      var zoomValue = document.getElementById("zoomSlider").value;
+
+      // Röntgen sonucu üzerindeki işlemleri burada yapabilirsiniz.
+      // Örnek olarak, röntgenin kontrast ve parlaklık ayarlarını değiştirebilir veya büyütme yapabilirsiniz.
+      // Bunun için gerekli işlemleri ekleyebilirsiniz.
+      var xrayImage = document.getElementById("xrayImage");
+      xrayImage.style.filter = "contrast(" + contrastValue + "%) brightness(" + brightnessValue + "%)";
+      xrayImage.style.width = zoomValue + "%";
+    }
+
+    // Sayfa yüklendiğinde verileri çekme ve güncelleme işlemleri
+    document.addEventListener("DOMContentLoaded", function() {
+      fetchDoctorData();
+    });
+
+    // Kontrollerde herhangi bir değişiklik olduğunda röntgeni özelleştirme işlemleri yapılır.
+    document.getElementById("contrastSlider").addEventListener("input", customizeXray);
+    document.getElementById("brightnessSlider").addEventListener("input", customizeXray);
+    document.getElementById("zoomSlider").addEventListener("input", customizeXray);
+
+
+    // Karşılama mesajını güncelleme
+    function updateGreetingMessage() {
+      var currentHour = new Date().getHours();
+      var greetingMessage;
+      if (currentHour < 12) {
+        greetingMessage = "Günaydın";
+      } else if (currentHour >= 12 && currentHour < 18) {
+        greetingMessage = "İyi günler";
+      } else {
+        greetingMessage = "İyi akşamlar";
+      }
+      document.getElementById("greetingMessage").textContent = greetingMessage;
+    }
+
+    // Hasta arama formunu işleme
+    function searchPatient() {
+      var patientName = document.getElementById("patientName").value;
+      // Burada hastanın röntgen sonucunu Firebase'den çekme işlemleri yapılabilir
+      // Ardından röntgen sonucunu "xrayImage" adlı img elementine ekleyebilirsiniz.
+      // Ayrıca özelleştirme penceresi için gerekli kontrollerin etkinlikleri ve işlevleri eklenmelidir.
+      // Örnek olarak, contrastSlider, brightnessSlider ve zoomSlider için gerekli olaylar ekleyebilirsiniz.
+      return false;
+    }
+
+    // Sayfa yüklendiğinde verileri çekme ve güncelleme işlemleri
+    document.addEventListener("DOMContentLoaded", function() {
+      fetchDoctorData();
+      updateGreetingMessage();
+    });
+  </script>
+</body>
+</html>
